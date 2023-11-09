@@ -1,0 +1,19 @@
+match user_action:
+        case 1:
+            print()
+
+            formatted_accounts_list: list = [
+                {
+                    'account_token': current_account,
+                    'account_proxy': next(cycled_proxies_list) if cycled_proxies_list else None,
+                    'account_private_key': private_keys_list.pop(0) if private_keys_list else None
+                } for current_account in accounts_list
+            ]
+
+            with Pool(processes=threads) as executor:
+                tasks_result: list = executor.map(start_reger_wrapper, formatted_accounts_list)
+
+            success_count: int = sum(tasks_result) if tasks_result.count(True) else 0
+            fail_count: int = len(tasks_result) - success_count
+
+            logger.info(f'Статистика работы: {success_count} SUCCESS | {fail_count} FAILED')
